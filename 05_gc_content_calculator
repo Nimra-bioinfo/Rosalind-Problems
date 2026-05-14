@@ -1,0 +1,60 @@
+"""
+Bioinformatics Script: GC Content Calculator for FASTA Files
+Author: [Nimra]
+Description: This script parses a FASTA file, calculates the GC content 
+for each sequence, and identifies the sequence with the highest percentage.
+"""
+
+def calculate_gc_percentage(sequence):
+    """Calculates the percentage of G and C bases in a DNA sequence."""
+    if not sequence:
+        return 0
+    gc_count = sequence.count('G') + sequence.count('C')
+    return (gc_count / len(sequence)) * 100
+
+def find_highest_gc_content(file_path):
+    """Parses FASTA file and returns the ID and GC content of the highest record."""
+    sequences = {}
+    current_label = ""
+
+    # STAGE 2 & 3: Parsing and Data Organization
+    try:
+        with open(file_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                if line.startswith(">"):
+                    current_label = line[1:]  # Extract ID
+                    sequences[current_label] = "" # Initialize empty sequence
+                else:
+                    sequences[current_label] += line.upper() # Append sequence lines
+        
+        # Identifying the winner
+        max_gc = -1
+        best_id = ""
+
+        for label, seq in sequences.items():
+            gc_value = calculate_gc_percentage(seq)
+            if gc_value > max_gc:
+                max_gc = gc_value
+                best_id = label
+        
+        return best_id, max_gc
+
+    except FileNotFoundError:
+        return None, None
+
+# --- Main Execution ---
+if __name__ == "__main__":
+    # Replace with your actual file name
+    target_file = "rosalind_gc (2).txt" 
+    
+    id_result, gc_result = find_highest_gc_content(target_file)
+
+    if id_result:
+        print(f"{id_result}")
+        print(f"{gc_result:.6f}")
+    else:
+        print("Error: File not found or empty.")
